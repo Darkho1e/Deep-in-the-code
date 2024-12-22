@@ -16,7 +16,6 @@ GOLD = (255, 215, 0)
 SECRET_KEY = b'2003'  # Key length needs to be 16, 24, or 32 bytes, so we pad it if necessary.
 SECRET_KEY = SECRET_KEY.ljust(16, b'\0')  # Ensure the key is 16 bytes long.
 
-
 def encrypt_data(data):
     """Encrypts the given data using AES encryption."""
     cipher = AES.new(SECRET_KEY, AES.MODE_CBC)
@@ -25,7 +24,6 @@ def encrypt_data(data):
     ct = base64.b64encode(ct_bytes).decode('utf-8')
     return iv, ct
 
-
 def decrypt_data(iv, encrypted_data):
     """Decrypts the given encrypted data using AES decryption."""
     iv = base64.b64decode(iv)
@@ -33,7 +31,6 @@ def decrypt_data(iv, encrypted_data):
     cipher = AES.new(SECRET_KEY, AES.MODE_CBC, iv)
     decrypted_data = unpad(cipher.decrypt(encrypted_data), AES.block_size).decode('utf-8')
     return decrypted_data
-
 
 def save_game_data(player_name, player_x, player_y, npc_interacted, filename="AllSave.txt"):
     """Saves game data (player name, position, NPC interaction status) to a file."""
@@ -52,9 +49,12 @@ def save_game_data(player_name, player_x, player_y, npc_interacted, filename="Al
     except Exception as e:
         print(f"Error saving game data: {e}")
 
-
 def load_game_data(filename="AllSave.txt"):
     """Loads game data (player name, position, NPC interaction status) from a file."""
+    if not os.path.exists(filename):
+        print("Save file not found, loading default data.")
+        return None, 400, 300, False  # Default values if the file does not exist
+
     try:
         with open(filename, 'r', encoding='utf-8') as file:
             iv_line = file.readline().strip()
@@ -279,11 +279,9 @@ class GameScreen:
             pygame.display.flip()
             self.clock.tick(60)
 
-
 def game_screen():
     game = GameScreen()
     game.game_loop()
-
 
 if __name__ == "__main__":
     game_screen()
